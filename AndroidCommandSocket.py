@@ -3,6 +3,7 @@
 import asynchat, asyncore, socket
 import logging
 from Servos import ServoController
+from thread import allocate_lock
 
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
 
@@ -21,7 +22,14 @@ class AndroidSocket(asynchat.async_chat):
         # Set up input buffer and define message terminator
         self.input_buffer = []
         self.set_terminator("\n")
-        
+        self.socket_lock = allocate_lock()
+    
+    def thread_safe_push(self, data):
+        with self.socket_lock:
+            self.push(data)
+            
+    def handle_error(self):
+        self.logger.error("================ ERROR! Failed to send something! ================ ")
         
     def handle_connect(self):
         # Init all the servos

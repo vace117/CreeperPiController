@@ -40,7 +40,7 @@ class Servo:
     def move_servo(self, position):
         pigpio.set_servo_pulsewidth(self.pin, position)
         self.logger.info("Position = %s" % position)
-        self.android_socket.push("%s:%s\n" % (self.name, position) )
+        self.android_socket.thread_safe_push("%s:%s\n" % (self.name, position) )
 
     def decrease_servo_position(self):
         if ( (self.current_position - self.STEP) >= self.min ):
