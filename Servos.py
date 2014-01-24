@@ -8,7 +8,7 @@ pigpio.start()
 
 class Servo:
     
-    STEP = 40
+    STEP = 10
     SLEEP = 0.02
     
     def __init__(self, name, gpio_pin, min_pos, max_pos, android_socket):
@@ -77,8 +77,8 @@ class ServoController:
 
     def __init__(self, android_socket):
         self.servos = {\
-                       "pan_tilt_azimuth" : Servo("AZIMUTH", 4, 700, 2200, android_socket), \
-                       "pan_tilt_inclination" : Servo("INCLINATION", 17, 700, 2200, android_socket) \
+                       "pan_tilt_azimuth" : Servo("AZIMUTH", 4, 600, 2400, android_socket), \
+                       "pan_tilt_inclination" : Servo("INCLINATION", 17, 1200, 2400, android_socket) \
                        }
         
         self.android_socket = android_socket
@@ -90,10 +90,10 @@ class ServoController:
         elif data == "LOOK_RIGHT":
             start_new_thread( self.servos["pan_tilt_azimuth"].increase_servo_position, () )
             self.android_socket.push("%s:%s\n" % (self.servos["pan_tilt_azimuth"].name, self.servos["pan_tilt_azimuth"].current_position) )
-        elif data == "LOOK_UP":
+        elif data == "LOOK_DOWN":
             start_new_thread( self.servos["pan_tilt_inclination"].increase_servo_position, () )
             self.android_socket.push("%s:%s\n" % (self.servos["pan_tilt_inclination"].name, self.servos["pan_tilt_inclination"].current_position) )
-        elif data == "LOOK_DOWN":
+        elif data == "LOOK_UP":
             start_new_thread( self.servos["pan_tilt_inclination"].decrease_servo_position, () )
             self.android_socket.push("%s:%s\n" % (self.servos["pan_tilt_inclination"].name, self.servos["pan_tilt_inclination"].current_position) )
         elif data == "LOOK_CENTER":
