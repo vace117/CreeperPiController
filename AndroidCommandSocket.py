@@ -2,7 +2,7 @@
 
 import asynchat, asyncore, socket
 import logging
-from Servos import ServoController
+from CommandDispatcher import CommandDispatcher
 from thread import allocate_lock
 
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
@@ -32,8 +32,12 @@ class AndroidSocket(asynchat.async_chat):
         self.logger.error("================ ERROR! Failed to send something! ================ ")
         
     def handle_connect(self):
-        # Init all the servos
-        self.servoController = ServoController(self)
+        # Init all the devices we need to control
+        try:
+            self.commandDispatcher = CommandDispatcher(self)
+        except Exception as e:
+            print e
+            raise e
         
         self.logger.info("Sending CREEPER_READY status")
         self.push("CREEPER_READY:\n")
@@ -48,7 +52,7 @@ class AndroidSocket(asynchat.async_chat):
         
     def handle_android_command(self, command_data):
         self.logger.info("Received command: %s" % command_data)
-        self.servoController.process_command(command_data)
+        self.commandDispatcher.process_command(command_data)
 
         
 
@@ -61,7 +65,7 @@ try:
 finally:
     print "Cleaning up..."
     try:
-        android_socket.servoController.stop_all_servos()
+        android_socket.commandDispatcher.stop_all_devices()
     except AttributeError:
         pass
         
