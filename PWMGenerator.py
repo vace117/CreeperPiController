@@ -51,7 +51,7 @@ class PWMGenerator:
         if ( pulse_width_us > self.max ): pulse_width_us = self.max
         
         # If we are just getting started, there might be not current pulse width yet
-        if ( self.current_pulse_width < self.min ): self.current_pulse_width = self.min 
+        if ( math.fabs(self.current_pulse_width) < self.min ): self.current_pulse_width = self.min 
         
         
         if self.current_pulse_width < pulse_width_us:
@@ -89,7 +89,7 @@ class PWMGenerator:
             
     def __set_duty_cycle(self, pulse_width_us):
         if ( math.fabs(pulse_width_us) <= self.max and math.fabs(pulse_width_us) >= self.min ):
-            self.set_duty_cycle(self.current_pulse_width + self.STEP)
+            self.set_duty_cycle(pulse_width_us)
             self.current_pulse_width = pulse_width_us
             return self.current_pulse_width
         else:

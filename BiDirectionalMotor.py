@@ -14,18 +14,9 @@ DIRECTION = Enum(["FORWARD", "REVERSE"])
 
 
 # This class is used to drive a bi-directional motor
-# 3 pins are required for a motor:
+# 2 pins are required for a motor:
 #    - gpio_pwm_pin: The pin that will deliver the PWM power signal
-#    - gpio_forward_pin = ~gpio_reverse_pin: 
-#
-#    gpio_forward_pin | gpio_reverse_pin |     Result   |
-#   ------------------|------------------|--------------|
-#            1        |        0         | Forward spin |
-#            0        |        1         | Reverse spin |
-#
-#    This can obviously be achieved with just one pin, but then an inverter 
-#    would be required. Unfortunately inverters come only in DIP packages,
-#    so I am choosing to use up an extra GPIO pin in order to save PCB board space
+#    - gpio_direction_pin: 0 = forward, 1 = reverse 
 #
 class BiDirectionalMotor(PWMGenerator):
     def __init__(self, name, gpio_pwm_pin, gpio_forward_pin, gpio_reverse_pin, min_pos, max_pos):
@@ -58,16 +49,13 @@ class BiDirectionalMotor(PWMGenerator):
         
         self.set_motor_direction_pins()
         
-#        pigpio.set_PWM_dutycycle(self.pin, pulse_width_us)
+#        pigpio.set_PWM_dutycycle(self.pin, math.fabs(pulse_width_us))
         
-        speed_str = pulse_width_us
-        if ( self.STEP < 0 ): speed_str = "-" + str(pulse_width_us)
-        
-        self.logger.info("Motor Speed = %s" % speed_str)
+        self.logger.info("Motor Speed = %s" % pulse_width_us)
 
     # Smoothly cycles the motor down to minimum power
     def stop_motor(self):
-        self.__smooth_set_duty_cycle(self.min)
+        self.smooth_set_duty_cycle(self.min)
 
     # Turns off all power to the motor 
     def stop_device(self):
@@ -86,34 +74,33 @@ class BiDirectionalMotor(PWMGenerator):
     
     # Get current motor spin direction. Negative STEP values indicate Reverse
     def get_current_direction(self):
-        return DIRECTION.FORWARD if self.STEP >= 0 else DIRECTION.REVERSE
+        return DIRECTION.FORWARD if self.current_pulse_width >= 0 else DIRECTION.REVERSE
     
     # Negating current STEP value reverses direction
     def reverse_direction(self):
-        self.STEP = -self.STEP
+        self.current_pulse_width = -self.current_pulse_width
         
     # If power decrease fails, we check if we are at the minimum boundary, and we try again
     # with reversed direction
     def decrease_duty_cycle(self):
-        if ( not PWMGenerator.decrease_duty_cycle(self) ):
-            if ( self.current_pulse_width == self.min and self.get_current_direction() == DIRECTION.FORWARD ):
+        success = PWMGenerator.decrease_duty_cycle(self)
+        if ( not success ):
+            if ( self.current_pulse_width == self.min ):
                 self.reverse_direction()
                 self.decrease_duty_cycle()
+        
+        return success
     
-    # If power increase fails, we check if we are at the maximum boundary, and we try again
+    # If power increase fails, we check if we are at the negative min boundary, and we try again
     # with reversed direction
     def increase_duty_cycle(self):
-        if ( not PWMGenerator.increase_duty_cycle(self) ):
-            if ( self.current_pulse_width == self.max and self.get_current_direction() == DIRECTION.REVERSE ):
+        success = PWMGenerator.increase_duty_cycle(self)
+        if ( not success ):
+            if ( -self.current_pulse_width == self.min ):
                 self.reverse_direction()
                 self.increase_duty_cycle()
-                
-    def print_servo_position(self, android_socket):
-        if ( self.get_current_direction() == DIRECTION.FORWARD ):
-            android_socket.push("%s:%s\n" % (self.name, self.current_pulse_width))
-        else:
-            android_socket.push("%s:-%s\n" % (self.name, self.current_pulse_width))
-                
+        
+        return success
 
     # Alias some functions from the base class        
     speed_up = increase_duty_cycle
