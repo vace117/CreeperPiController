@@ -107,6 +107,13 @@ class BiDirectionalMotor(PWMGenerator):
             if ( self.current_pulse_width == self.max and self.get_current_direction() == DIRECTION.REVERSE ):
                 self.reverse_direction()
                 self.increase_duty_cycle()
+                
+    def print_servo_position(self, android_socket):
+        if ( self.get_current_direction() == DIRECTION.FORWARD ):
+            android_socket.push("%s:%s\n" % (self.name, self.current_pulse_width))
+        else:
+            android_socket.push("%s:-%s\n" % (self.name, self.current_pulse_width))
+                
 
     # Alias some functions from the base class        
     speed_up = increase_duty_cycle

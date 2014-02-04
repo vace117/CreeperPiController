@@ -72,12 +72,7 @@ class PWMGenerator:
         self.lock.acquire()
         try:
             desired_pulse_width_us = self.current_pulse_width - self.STEP
-            if ( desired_pulse_width_us >= self.min ):
-                self.set_duty_cycle(desired_pulse_width_us)
-                self.current_pulse_width = desired_pulse_width_us
-                return self.current_pulse_width
-            else:
-                return False
+            return self.__set_duty_cycle(desired_pulse_width_us)
             
         finally:
             self.lock.release()
@@ -87,19 +82,24 @@ class PWMGenerator:
         self.lock.acquire()
         try:
             desired_pulse_width_us = self.current_pulse_width + self.STEP
-            if ( desired_pulse_width_us <= self.max ):
-                self.set_duty_cycle(self.current_pulse_width + self.STEP)
-                self.current_pulse_width = desired_pulse_width_us
-                return self.current_pulse_width
-            else:
-                return False
+            return self.__set_duty_cycle(desired_pulse_width_us)
+        
         finally:
             self.lock.release()
+            
+    def __set_duty_cycle(self, pulse_width_us):
+        if ( math.fabs(pulse_width_us) <= self.max and math.fabs(pulse_width_us) >= self.min ):
+            self.set_duty_cycle(self.current_pulse_width + self.STEP)
+            self.current_pulse_width = pulse_width_us
+            return self.current_pulse_width
+        else:
+            return False
+        
         
     
     # WARNING: This method can only be called from the same thread where the network socket event loop is running! 
     def print_servo_position(self, android_socket):
-        self.android_socket.push("%s:%s\n" % self.name, self.current_pulse_width)
+        android_socket.push("%s:%s\n" % (self.name, self.current_pulse_width))
         
     # Abstract methods
     #        

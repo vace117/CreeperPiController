@@ -2,6 +2,7 @@
 
 import asynchat, asyncore, socket
 import logging
+import sys, traceback
 from CommandDispatcher import CommandDispatcher
 from thread import allocate_lock
 
@@ -30,6 +31,8 @@ class AndroidSocket(asynchat.async_chat):
             
     def handle_error(self):
         self.logger.error("================ ERROR! Failed to send something! ================ ")
+        etype, value, tb = sys.exc_info()
+        traceback.print_exception(etype, value, tb)
         
     def handle_connect(self):
         # Init all the devices we need to control
