@@ -1,5 +1,6 @@
 from Servos import Servo
 from BiDirectionalMotor import BiDirectionalMotor
+from ThreeStateSteering import ThreeStateSteering
 from thread import start_new_thread
 
 import pigpio
@@ -12,7 +13,8 @@ class CommandDispatcher:
         self.devices = {\
                        "pan_tilt_azimuth"      : Servo("AZIMUTH", 4, 600, 2400, android_socket), \
                        "pan_tilt_inclination"  : Servo("INCLINATION", 17, 1200, 2400, android_socket), \
-                       "rear_drive_motor"      : BiDirectionalMotor("REAR_MOTOR", 21, 23, 5000, 20000, android_socket) \
+                       "rear_drive_motor"      : BiDirectionalMotor("REAR_MOTOR", 21, 23, 5000, 20000, android_socket), \
+                       "front_steering"        : ThreeStateSteering("FRONT_STEERING", 24, 25, android_socket) \
                        }
         
         self.android_socket = android_socket
@@ -36,6 +38,11 @@ class CommandDispatcher:
             self.dispath_to_device("rear_drive_motor", "slow_down")
         elif data == "STOP":
             self.dispath_to_device("rear_drive_motor", "stop_motor")
+
+        elif data == "WHEELS_LEFT":
+            self.dispath_to_device("front_steering", "turn_left")
+        elif data == "WHEELS_RIGHT":
+            self.dispath_to_device("front_steering", "turn_right")
     
     
     # Executes the given method on the given servo in a new thread
