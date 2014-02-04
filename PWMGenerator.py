@@ -8,10 +8,11 @@ import pigpio
 
 # Abstract base class for Servos and bi-directional motors
 #
-class PWMGenerator:
+class AbstractPWMGenerator:
     
-    def __init__(self, name, gpio_pin, min_pos, max_pos):
+    def __init__(self, name, gpio_pin, min_pos, max_pos, android_socket):
         self.name = name
+        self.android_socket = android_socket
         
         # GPIO pin to which the servo is connected
         self.pin = gpio_pin
@@ -65,6 +66,8 @@ class PWMGenerator:
         else:
             self.set_duty_cycle(pulse_width_us)
         
+        self.report_device_state()
+        
         self.lock.release()
 
     # Decrease by STEP
@@ -98,8 +101,8 @@ class PWMGenerator:
         
     
     # WARNING: This method can only be called from the same thread where the network socket event loop is running! 
-    def print_servo_position(self, android_socket):
-        android_socket.push("%s:%s\n" % (self.name, self.current_pulse_width))
+    def report_device_state(self):
+        self.android_socket.push("%s:%s\n" % (self.name, self.current_pulse_width))
         
     # Abstract methods
     #        

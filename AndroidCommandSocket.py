@@ -3,8 +3,8 @@
 import asynchat, asyncore, socket
 import logging
 import sys, traceback
+from threading import RLock
 from CommandDispatcher import CommandDispatcher
-from thread import allocate_lock
 
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
 
@@ -23,11 +23,24 @@ class AndroidSocket(asynchat.async_chat):
         # Set up input buffer and define message terminator
         self.input_buffer = []
         self.set_terminator("\n")
-        self.socket_lock = allocate_lock()
+        self.socket_lock = RLock()
     
-    def thread_safe_push(self, data):
-        with self.socket_lock:
-            self.push(data)
+    # Making async_chat thread-safe
+    def push(self, data):
+        try:
+            self.socket_lock.acquire()
+            asynchat.async_chat.push(self, data)
+        finally:
+            self.socket_lock.release()
+    
+    # Making async_chat thread-safe
+    def initiate_send(self):
+        try:
+            self.socket_lock.acquire()
+            asynchat.async_chat.initiate_send(self)
+        finally:
+            self.socket_lock.release()
+        
             
     def handle_error(self):
         self.logger.error("================ ERROR! Failed to send something! ================ ")

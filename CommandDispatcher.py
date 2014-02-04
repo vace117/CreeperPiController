@@ -10,9 +10,9 @@ class CommandDispatcher:
 
     def __init__(self, android_socket):
         self.devices = {\
-                       "pan_tilt_azimuth"      : Servo("AZIMUTH", 4, 600, 2400), \
-                       "pan_tilt_inclination"  : Servo("INCLINATION", 17, 1200, 2400), \
-                       "rear_drive_motor"      : BiDirectionalMotor("REAR_MOTOR", 21, 23, 24, 5000, 20000) \
+                       "pan_tilt_azimuth"      : Servo("AZIMUTH", 4, 600, 2400, android_socket), \
+                       "pan_tilt_inclination"  : Servo("INCLINATION", 17, 1200, 2400, android_socket), \
+                       "rear_drive_motor"      : BiDirectionalMotor("REAR_MOTOR", 21, 23, 5000, 20000, android_socket) \
                        }
         
         self.android_socket = android_socket
@@ -38,19 +38,15 @@ class CommandDispatcher:
             self.dispath_to_device("rear_drive_motor", "stop_motor")
     
     
-    # Executes the given method on the given servo in a new thread, then prints servo state
-    # into the network socket from the main thread.
-    #
-    # PROBLEM: This code does not wait for the thread to return, so we don't know what we are actually printing
+    # Executes the given method on the given servo in a new thread
     #
     def dispath_to_device(self, servo_name, method_name):
         servo = self.devices[servo_name]
         start_new_thread( getattr(servo, method_name), () )
-        servo.print_servo_position(self.android_socket)
             
     def stop_all_devices(self):
-        for servo in self.devices.values():
-            servo.stop_device()
+        for device in self.devices.values():
+            device.stop_device()
         
         #pigpio.stop()
     
