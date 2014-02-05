@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 import pigpio
-import curses
+from curseyou import *
+
 
 CHANNEL1_PIN = 4
 #PERIOD = 5000
@@ -30,32 +31,9 @@ def set_channel(pin, duty_cycle_us):
 	pigpio.set_PWM_dutycycle(pin, duty_cycle_us)
 	print_at(5, 0, "Channel Duty Cycle: %d/%d              " % (PERIOD,RANGE))
 
-def init_curses():
-	global stdscr
-	stdscr = curses.initscr()
-	curses.noecho()
-	curses.cbreak()
-	stdscr.keypad(1)
-
-def restore_terminal():
-	stdscr.keypad(0)
-	curses.echo()
-	curses.nocbreak()
-	curses.endwin()	
-
-def println(str):
-	_print(str + "\n")
-
-def _print(str):
-	stdscr.addstr(str)
-	stdscr.refresh()
-
-def print_at(y,x,str):
-	stdscr.addstr(y,x,str)
-	stdscr.refresh()
 
 try:
-	init_curses()
+	stdscr = init_curses()
 
 	println("\nUse UP and DOWN arrows to control the duty cycle")
 	start_channel(CHANNEL1_PIN, PERIOD)
