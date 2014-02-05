@@ -4,17 +4,17 @@ from ThreeStateSteering import ThreeStateSteering
 from thread import start_new_thread
 
 import pigpio
-#pigpio.start()
+pigpio.start()
 
        
 class CommandDispatcher:
 
     def __init__(self, android_socket):
         self.devices = {\
-                       "pan_tilt_azimuth"      : Servo("AZIMUTH", 4, 600, 2400, android_socket), \
-                       "pan_tilt_inclination"  : Servo("INCLINATION", 17, 1200, 2400, android_socket), \
-                       "rear_drive_motor"      : BiDirectionalMotor("REAR_MOTOR", 21, 23, 5000, 20000, android_socket), \
-                       "front_steering"        : ThreeStateSteering("FRONT_STEERING", 24, 25, android_socket) \
+#                        "pan_tilt_azimuth"      : Servo("AZIMUTH", 4, 600, 2400, android_socket), \
+#                        "pan_tilt_inclination"  : Servo("INCLINATION", 17, 1200, 2400, android_socket), \
+                       "rear_drive_motor"      : BiDirectionalMotor("REAR_MOTOR", 17, 22, 5000, 20000, android_socket), \
+                       "front_steering"        : ThreeStateSteering("FRONT_STEERING", 23, 24, android_socket) \
                        }
         
         self.android_socket = android_socket
@@ -55,5 +55,5 @@ class CommandDispatcher:
         for device in self.devices.values():
             device.stop_device()
         
-        #pigpio.stop()
+        pigpio.stop()
     

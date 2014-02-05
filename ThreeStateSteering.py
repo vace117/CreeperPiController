@@ -38,19 +38,19 @@ class ThreeStateSteering(AbstractPWMGenerator):
         self.center_steering()
     
     def set_duty_cycle(self, pulse_width_us):
-        self.set_direction_pin()
-        
-#        pigpio.set_PWM_dutycycle(self.pin, math.fabs(pulse_width_us))
+        pigpio.set_PWM_dutycycle(self.pin, math.fabs(pulse_width_us))
         self.logger.info("Position = %s" % pulse_width_us)
+        
+        self.set_direction_pin()
 
     # Selects spin direction for the motor. Negative pulse width represents Reverse.
     def set_direction_pin(self):
-        if ( self.current_pulse_width > 0):
-            pass
-            #pigpio.write(self.gpio_direction_pin, 0)
+        if ( self.current_pulse_width >= 0):
+            pigpio.write(self.gpio_direction_pin, 0)
         else:
-            pass
-            #pigpio.write(self.gpio_direction_pin, 1)
+            pigpio.write(self.gpio_direction_pin, 1)
+        
+        self.logger.info("Direction pin = %s" % pigpio.read(self.gpio_direction_pin))
     
     
 

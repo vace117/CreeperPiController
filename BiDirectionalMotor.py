@@ -1,4 +1,5 @@
 import logging
+import math
 import pigpio
 
 from PWMGenerator import AbstractPWMGenerator
@@ -15,28 +16,32 @@ class BiDirectionalMotor(AbstractPWMGenerator):
         self.STEP = 100
         self.SLEEP = 0.01
 
+        self.gpio_direction_pin = gpio_direction_pin
+
         # Common init code
         AbstractPWMGenerator.__init__(self, name, gpio_pwm_pin, min_pos, max_pos, android_socket)
 
         # Power up with forward motor direction set at minimum power. Positive pulse width represents Forward.
         self.current_pulse_width = self.min
-        
-        self.gpio_direction_pin = gpio_direction_pin
 
+        self.set_motor_direction_pins()
         self.smooth_set_duty_cycle(self.current_pulse_width)
         
         
-    def _pigpio_init_pwm(self):
-        AbstractPWMGenerator._pigpio_init_pwm(self)
-#        pigpio.set_mode(self.forward_pin, pigpio.OUTPUT)
-#        pigpio.set_mode(self.reverse_pin, pigpio.OUTPUT)
-
+    def pigpio_init_pwm(self):
+        AbstractPWMGenerator.pigpio_init_pwm(self)
+        pigpio.set_mode(self.gpio_direction_pin, pigpio.OUTPUT)
     
     def set_duty_cycle(self, pulse_width_us):
         
         self.set_motor_direction_pins()
         
-#        pigpio.set_PWM_dutycycle(self.pin, math.fabs(pulse_width_us))
+        if ( math.fabs(pulse_width_us) == self.min ):
+            # If we have reached the bottom of the power range, turn the power off entirely so we don't waste any
+            self.logger.info("Shutting down motor") 
+            pigpio.set_PWM_dutycycle(self.pin, 0)
+        else:
+            pigpio.set_PWM_dutycycle(self.pin, math.fabs(pulse_width_us))
         
         self.logger.info("Motor Speed = %s" % pulse_width_us)
 
@@ -46,16 +51,17 @@ class BiDirectionalMotor(AbstractPWMGenerator):
 
     # Turns off all power to the motor 
     def stop_device(self):
-        self.__set_duty_cycle(0)
+        self.set_duty_cycle(0)
         
     # Selects spin direction for the motor. Negative pulse width represents Reverse.
     def set_motor_direction_pins(self):
         if ( self.current_pulse_width >= 0):
-            pass
-            #pigpio.write(self.gpio_direction_pin, 0)
+            pigpio.write(self.gpio_direction_pin, 0)
         else:
-            pass
-            #pigpio.write(self.gpio_direction_pin, 1)
+            pigpio.write(self.gpio_direction_pin, 1)
+
+        self.logger.info("Direction pin set to %s" % pigpio.read(self.gpio_direction_pin))
+        
     
     # Negating current STEP value reverses direction
     def reverse_direction(self):

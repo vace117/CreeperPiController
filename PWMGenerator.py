@@ -23,16 +23,15 @@ class AbstractPWMGenerator:
         self.max = max_pos
         
         # Init the servo pin and move the servo to the center (neutral) position
-        self._pigpio_init_pwm()
+        self.pigpio_init_pwm()
         
         # Syncronization of methods that we do not want executing concurrently
         self.lock = RLock()
     
-    def _pigpio_init_pwm(self):
-#        pigpio.set_PWM_frequency(self.pin, 50) # 50Hz pulses
-#        pigpio.set_PWM_range(self.pin, 20000) # 1,000,000 / 50 = 20,000us for 100% duty cycle
-#        self.logger.info("PWM cycle frequency: %dHz" % pigpio.get_PWM_frequency(self.pin))
-        pass
+    def pigpio_init_pwm(self):
+        pigpio.set_PWM_frequency(self.pin, 50) # 50Hz pulses
+        pigpio.set_PWM_range(self.pin, 20000) # 1,000,000 / 50 = 20,000us for 100% duty cycle
+        self.logger.info("PWM cycle frequency: %dHz" % pigpio.get_PWM_frequency(self.pin))
     
     # Change the duty cycle slowly and smoothly to the specified position
     # The speed is controlled by STEP. Smoothness by SLEEP.
@@ -92,8 +91,8 @@ class AbstractPWMGenerator:
             
     def __set_duty_cycle(self, pulse_width_us):
         if ( math.fabs(pulse_width_us) <= self.max and math.fabs(pulse_width_us) >= self.min ):
-            self.set_duty_cycle(pulse_width_us)
             self.current_pulse_width = pulse_width_us
+            self.set_duty_cycle(pulse_width_us)
             return self.current_pulse_width
         else:
             return False

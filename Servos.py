@@ -34,7 +34,7 @@ class Servo(AbstractPWMGenerator):
         self.set_duty_cycle(0)
     
     def set_duty_cycle(self, pulse_width_us):
-#        pigpio.set_servo_pulsewidth(self.pin, pulse_width_us)
+        pigpio.set_servo_pulsewidth(self.pin, pulse_width_us)
         self.logger.info("Position = %s" % pulse_width_us)
     
 
