@@ -15,7 +15,7 @@ def set_pin_to(pin, value):
 	print_at(5, 0, "Pin %s set to %s    " % (pin, value))
 		
 
-if ( len(sys.argv) < 2 ):
+if ( len(sys.argv) < 3 ):
 	print "Usage: ./set_pin.py pin_number [0/1]\n"
 	sys.exit(-1)
 
