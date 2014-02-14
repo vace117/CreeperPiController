@@ -11,10 +11,10 @@ class CommandDispatcher:
 
     def __init__(self, android_socket):
         self.devices = {\
-#                        "pan_tilt_azimuth"      : Servo("AZIMUTH", 4, 600, 2400, android_socket), \
-#                        "pan_tilt_inclination"  : Servo("INCLINATION", 17, 1200, 2400, android_socket), \
-                       "rear_drive_motor"      : BiDirectionalMotor("REAR_MOTOR", 17, 22, 5000, 20000, android_socket), \
-                       "front_steering"        : ThreeStateSteering("FRONT_STEERING", 23, 24, android_socket) \
+                        "pan_tilt_azimuth"      : Servo("AZIMUTH", 23, 600, 2400, android_socket), \
+                        "pan_tilt_inclination"  : Servo("INCLINATION", 24, 1200, 2400, android_socket), \
+                        "rear_drive_motor"      : BiDirectionalMotor("REAR_MOTOR", 2, 3, 5000, 20000, android_socket), \
+                        "front_steering"        : ThreeStateSteering("FRONT_STEERING", 9, 11, android_socket) \
                        }
         
         self.android_socket = android_socket
