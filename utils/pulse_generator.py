@@ -4,13 +4,12 @@ import pigpio
 from curseyou import *
 
 
-CHANNEL1_PIN = 4
-#PERIOD = 5000
-PERIOD = 20000
+CHANNEL1_PIN = 24
+PERIOD = 1300
 
 
-RANGE = 20000 # uS
-STEP = 100
+RANGE = 20000 # uS (max period)
+STEP = 300
 
 pigpio.start()
 
