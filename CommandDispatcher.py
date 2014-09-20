@@ -11,10 +11,11 @@ class CommandDispatcher:
 
     def __init__(self, android_socket):
         self.devices = {\
-                        "pan_tilt_azimuth"      : Servo("AZIMUTH", 23, 600, 2400, android_socket), \
-                        "pan_tilt_inclination"  : Servo("INCLINATION", 24, 1200, 2400, android_socket), \
-                        "rear_drive_motor"      : BiDirectionalMotor("REAR_MOTOR", 2, 3, 5000, 20000, android_socket), \
-                        "front_steering"        : ThreeStateSteering("FRONT_STEERING", 9, 11, android_socket) \
+                        "pan_tilt_azimuth"      : Servo("AZIMUTH", 23, 600, 2400, 15, android_socket), \
+                        "pan_tilt_inclination"  : Servo("INCLINATION", 25, 1200, 2400, 15, android_socket), \
+                        "rear_drive_motor"      : BiDirectionalMotor("REAR_MOTOR", 3, 2, 5000, 20000, android_socket), \
+                        "front_steering"        : Servo("FRONT_STEERING", 24, 900, 1700, 400, android_socket) \
+                        #TODO: Rewrite ThreeStateSteering for front steearing with LEFT, CENTER and RIGHT settings
                        }
         
         self.android_socket = android_socket
@@ -40,9 +41,11 @@ class CommandDispatcher:
             self.dispath_to_device("rear_drive_motor", "stop_motor")
 
         elif data == "WHEELS_LEFT":
-            self.dispath_to_device("front_steering", "turn_left")
+            # self.dispath_to_device("front_steering", "turn_left")
+            self.dispath_to_device("front_steering", "decrease_servo_position")
         elif data == "WHEELS_RIGHT":
-            self.dispath_to_device("front_steering", "turn_right")
+            # self.dispath_to_device("front_steering", "turn_right")
+            self.dispath_to_device("front_steering", "increase_servo_position")
     
     
     # Executes the given method on the given servo in a new thread

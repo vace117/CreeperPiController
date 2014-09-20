@@ -8,10 +8,10 @@ from PWMGenerator import AbstractPWMGenerator
 #
 class Servo(AbstractPWMGenerator):
     
-    def __init__(self, name, gpio_pin, min_pos, max_pos, android_socket):
+    def __init__(self, name, gpio_pin, min_pos, max_pos, step_size, android_socket):
         self.logger = logging.getLogger("Servo_%s" % gpio_pin)
 
-        self.STEP = 15 # uS
+        self.STEP = step_size # uS
         self.SLEEP = 0.02 # seconds
 
 

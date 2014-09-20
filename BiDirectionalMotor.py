@@ -13,8 +13,8 @@ class BiDirectionalMotor(AbstractPWMGenerator):
     def __init__(self, name, gpio_pwm_pin, gpio_direction_pin, min_pos, max_pos, android_socket):
         self.logger = logging.getLogger("Motor_%s" % gpio_pwm_pin)
 
-        self.STEP = 100
-        self.SLEEP = 0.01
+        self.STEP = 2500
+        self.SLEEP = 0.1
 
         self.gpio_direction_pin = gpio_direction_pin
 
