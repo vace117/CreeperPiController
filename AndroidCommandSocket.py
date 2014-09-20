@@ -8,7 +8,8 @@ from CommandDispatcher import CommandDispatcher
 
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
 
-ANDROID_HOST = ("192.168.7.101", 4444)
+#ANDROID_HOST = ("192.168.7.101", 4444)
+ANDROID_HOST = ("192.168.43.1", 4444)
 
 class AndroidSocket(asynchat.async_chat):
     
